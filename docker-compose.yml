@@ -1,0 +1,41 @@
+version: "3.9"
+services:
+
+  docker-in-docker: 
+    container_name: jenkins-docker
+    image: docker:dind
+    environment:
+      - DOCKER_TLS_CERTDIR=/certs
+    privileged: true  # Corrected typo from previledge to privileged
+    volumes:
+      - jenkins-docker-certs:/certs/client
+      - jenkins-data:/var/jenkins_home 
+    networks:  # Define the network for this service
+      jenkins:
+        aliases:
+          - docker 
+    ports:
+      - 2376:2376  # Define the ports for this service
+
+  jenkins-server:
+    build:
+      context: .
+      dockerfile: Dockerfile 
+    container_name: jenkins-blueocean 
+    environment:
+      - DOCKER_HOST=//tcp:docker:2376  # Remove the unnecessary "env" prefix
+      - DOCKER_CERT_PATH=/certs/client 
+      - DOCKER_TLS_VERIFY=1
+    restart: on-failure
+    networks:  # Define the network for this service
+      - jenkins
+    ports:
+      - 8080:8080
+      - 50000:50000
+
+networks:
+  jenkins:  # Define the jenkins network
+    driver: bridge  # You can use the bridge driver or any other supported driver
+volumes:
+  jenkins-docker-certs:
+  jenkins-data:
