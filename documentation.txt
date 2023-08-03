@@ -1,0 +1,3 @@
+This project runs jenkins as a docker container and integrates with github 
+To test, I am making changes to this text file, commit the changes and push to Github then
+perform a manual buuild in jenkins.
